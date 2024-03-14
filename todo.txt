@@ -1,0 +1,3 @@
+doblar salida bnc (una negada y la otra no).
+led indicativo de la generacion del pulso.
+opcion de reset del numero de pulsos (reiniciar el numero de pulsos a enviar).
