@@ -34,30 +34,33 @@ pinButtonStart (2) es el start
 #include <Keypad.h>
 
 //Crear el objeto LCD con los números correspondientes (rs, en, d19, d18, d17, d16)
-LiquidCrystal lcd(15, 14, 19, 18, 17, 16);
+LiquidCrystal lcd(14, 15, 19, 18, 17, 16);
+const unsigned int DISPLAY_N_COLUMNS = 20;
+const unsigned int DISPLAY_N_ROWS = 4;
 
 #define             pinOC1A 9   //timer 1 OC1A (Pulse output)
 #define             pinLed 2    //Led output pin para señalizar la generación del pulso
 
 //Crear un objeto keypad
-const int ROW_NUM = 4;          //four rows
-const int COLUMN_NUM = 4;       //four columns
+const int KEYPAD_N_ROWS = 4;          //four rows
+const int KEYPAD_N_COLUMNS = 4;       //four columns
 
-char keys[ROW_NUM][COLUMN_NUM] = {
+char keys[KEYPAD_N_ROWS][KEYPAD_N_COLUMNS] = {
   {'1','2','3', 'A'},
   {'4','5','6', 'B'},
   {'7','8','9', 'C'},
   {'*','0','#', 'D'}
 };
 
-byte pin_rows[ROW_NUM] = {13, 12, 11, 10};    //connect to the row pinouts of the keypad
-byte pin_columns[COLUMN_NUM] = {8, 7, 6, 5};  //connect to the column pinouts of the keypad
+byte pin_rows[KEYPAD_N_ROWS] = {13, 12, 11, 10};    //connect to the row pinouts of the keypad
+byte pin_columns[KEYPAD_N_COLUMNS] = {8, 7, 6, 5};  //connect to the column pinouts of the keypad
 
-Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_columns, ROW_NUM, COLUMN_NUM );
+Keypad keypad = Keypad( makeKeymap(keys), pin_rows, pin_columns, KEYPAD_N_ROWS, KEYPAD_N_COLUMNS);
 
-char const START_STOP_KEY = '*';
-char const ENTER_MENU_KEY = '#';
-char const RETURN_MENU_KEY = '*';
+char const START_STOP_KEY     = 'A';
+char const ENTER_MENU_KEY     = 'B';
+char const RETURN_MENU_KEY    = 'C';
+char const RESET_COUNTER_KEY  = 'D';
 
 // Generator Status
 byte OUTPUT_STATUS = 0;
@@ -194,7 +197,7 @@ void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);  
   // Inicializar el LCD con el número de  columnas y filas del LCD
-  lcd.begin(16, 2);
+  lcd.begin(DISPLAY_N_COLUMNS, DISPLAY_N_ROWS);
   lcd.clear();
   initPortAsOutput(pinOC1A, LOW);
   initPortAsOutput(pinLed, LOW);
@@ -315,20 +318,21 @@ void updateDisplay(byte displayStatus){
     lcd.print(T);
     lcd.print("ms");
     if (OUTPUT_STATUS) {
-      lcd.print(" RUNNING");   
+      lcd.print("     RUNNING");   
     }
     else{
-      lcd.print(" STOPPED"); 
+      lcd.print("     STOPPED"); 
     }
+    
     // Second row
     lcd.setCursor(0, 1); // (columna, fila)
     lcd.print("ton=");
     lcd.print(ton);
     lcd.print("us");
-    /*
+    
     // Third row
     lcd.setCursor(0, 2); // (columna, fila)
-    if (N_PULSES==0){
+    if (np==0){
       lcd.print("N_PULSES=INF");  
     }else{
       lcd.print("N_PULSES=");
@@ -340,8 +344,7 @@ void updateDisplay(byte displayStatus){
     lcd.print(generated_pulses_counter);
     lcd.print(",");
     lcd.print("R=");
-    lcd.print(np-generated_pulses_counter);
-    */   
+    lcd.print(np-generated_pulses_counter);   
   }
   if (displayStatus == DISPLAY_IN_MAIN_MENU){
     // MAIN_MENU
@@ -349,12 +352,10 @@ void updateDisplay(byte displayStatus){
     lcd.print("1.Set N_PULSES");
     lcd.setCursor(0, 1); // (columna, fila)
     lcd.print("2.Set T");
-    /*
     lcd.setCursor(0, 2); // (columna, fila)
     lcd.print("3.Set ton");
     lcd.setCursor(0, 3); // (columna, fila)
     lcd.print("*.Return to Main Window");
-    */
   }
   if (displayStatus == DISPLAY_IN_SUBMENU_1){
     // SUBMENU_1
